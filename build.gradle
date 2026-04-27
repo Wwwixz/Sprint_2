@@ -60,7 +60,7 @@ project(":android") {
 }
 
 project(":lwjgl3") {
-    apply plugin: "java-library"
+    apply plugin: "application"
 
     dependencies {
         implementation project(":core")
