@@ -1,5 +1,11 @@
+apply plugin: "application"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-eclipse.project.name = appName + "-lwjgl3"
 
 application {
     mainClass = "io.github.some_example_name.lwjgl3.Lwjgl3Launcher"

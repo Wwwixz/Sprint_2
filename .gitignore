@@ -1,0 +1,23 @@
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar
+/core/build/
+/android/build/
+/lwjgl3/build/
+/local.properties
+.idea/
+*.iml
+*.class
+.DS_Store
+/captures/
+.externalNativeBuild
+.cxx
+/assets/pictures_for_game/background/*
+/assets/pictures_for_game/bird/*
+/assets/pictures_for_game/button/*
+/assets/pictures_for_game/tube/*
+# Keep the directories if needed
+!/assets/pictures_for_game/background/.gitkeep
+!/assets/pictures_for_game/bird/.gitkeep
+!/assets/pictures_for_game/button/.gitkeep
+!/assets/pictures_for_game/tube/.gitkeep
