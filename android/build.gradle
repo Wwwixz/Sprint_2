@@ -38,12 +38,61 @@ android {
     }
 }
 
+configurations { natives }
+
 dependencies {
     implementation project(":core")
-    implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
-    implementation "androidx.fragment:fragment:1.6.2"
-    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
-    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
-    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
-    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
+    implementation ("com.badlogicgames.gdx:gdx-backend-android:$gdxVersion") {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+    }
+    implementation ("androidx.fragment:fragment:1.6.2") {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+    }
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
 }
+
+task copyNatives {
+    doFirst {
+        file("libs/armeabi-v7a/").mkdirs()
+        file("libs/arm64-v8a/").mkdirs()
+        file("libs/x86/").mkdirs()
+        file("libs/x86_64/").mkdirs()
+
+        configurations.natives.copy().files.each { jar ->
+            def outputDir = null
+            if (jar.name.endsWith("natives-arm64-v8a.jar")) outputDir = file("libs/arm64-v8a")
+            if (jar.name.endsWith("natives-armeabi-v7a.jar")) outputDir = file("libs/armeabi-v7a")
+            if (jar.name.endsWith("natives-x86_64.jar")) outputDir = file("libs/x86_64")
+            if (jar.name.endsWith("natives-x86.jar")) outputDir = file("libs/x86")
+            if (outputDir != null) {
+                copy {
+                    from zipTree(jar)
+                    into outputDir
+                    include "*.so"
+                }
+            }
+        }
+    }
+}
+
+tasks.whenTaskAdded { packageTask ->
+    if (packageTask.name.contains("package") || packageTask.name.contains("bundle")) {
+        packageTask.dependsOn 'copyNatives'
+    }
+}
+
+task cleanNativeLib {
+    doLast {
+        delete "libs/armeabi-v7a"
+        delete "libs/arm64-v8a"
+        delete "libs/x86"
+        delete "libs/x86_64"
+    }
+}
+
+clean.dependsOn cleanNativeLib

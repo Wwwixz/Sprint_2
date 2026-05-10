@@ -16,11 +16,11 @@ public class TextButton {
         this.text = text;
         texture = new Texture("pictures_for_game/button/button_bg.png");
         font = new BitmapFont();
-        font.getData().setScale(2);
+        font.getData().setScale(5); // Еще больше увеличиваем масштаб текста
         
         layout = new GlyphLayout(font, text);
-        this.width = layout.width + 40;
-        this.height = layout.height + 40;
+        this.width = layout.width + 200; // Еще больше увеличиваем ширину кнопки
+        this.height = layout.height + 120; // Еще больше увеличиваем высоту кнопки
         this.x = centerX - width / 2;
         this.y = centerY - height / 2;
     }

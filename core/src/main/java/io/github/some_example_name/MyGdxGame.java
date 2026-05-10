@@ -34,12 +34,17 @@ public class MyGdxGame extends Game {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, SCR_WIDTH, SCR_HEIGHT);
 
-        screenGame = new ScreenGame(this);
-        screenMenu = new ScreenMenu(this);
-        screenRestart = new ScreenRestart(this);
-
-        // Начинаем с главного меню
-        setScreen(screenMenu);
+        // Инициализируем экраны ПО ОЧЕРЕДИ
+        try {
+            screenGame = new ScreenGame(this);
+            screenMenu = new ScreenMenu(this);
+            screenRestart = new ScreenRestart(this);
+            
+            // Начинаем с главного меню
+            setScreen(screenMenu);
+        } catch (Exception e) {
+            Gdx.app.error("MyGdxGame", "Error during screen initialization", e);
+        }
     }
 
     public void saveHighScore(int score) {
@@ -53,6 +58,9 @@ public class MyGdxGame extends Game {
 
     @Override
     public void dispose() {
-        batch.dispose();
+        if (batch != null) batch.dispose();
+        if (screenGame != null) screenGame.dispose();
+        if (screenMenu != null) screenMenu.dispose();
+        if (screenRestart != null) screenRestart.dispose();
     }
 }

@@ -21,6 +21,7 @@ import org.gradle.internal.os.OperatingSystem
 
 run {
     ignoreExitValue = true
+    workingDir = project.file("../assets").absolutePath
     if (OperatingSystem.current().isMacOsX()) {
         jvmArgs += "-XstartOnFirstThread"
     }

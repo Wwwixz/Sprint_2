@@ -24,8 +24,8 @@ public class MovingBackground {
     }
 
     public void draw(Batch batch) {
-        batch.draw(texture, x1, 0, SCR_WIDTH, 720);
-        batch.draw(texture, x2, 0, SCR_WIDTH, 720);
+        batch.draw(texture, x1, 0, SCR_WIDTH, io.github.some_example_name.MyGdxGame.SCR_HEIGHT);
+        batch.draw(texture, x2, 0, SCR_WIDTH, io.github.some_example_name.MyGdxGame.SCR_HEIGHT);
     }
 
     public void dispose() {

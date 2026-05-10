@@ -11,7 +11,7 @@ public class PointCounter {
         this.x = x;
         this.y = y;
         font = new BitmapFont();
-        font.getData().setScale(3); // Делаем шрифт покрупнее
+        font.getData().setScale(6); // Сделаем счет очков еще крупнее
     }
 
     public void draw(Batch batch, String prefix, int countOfPoints) {

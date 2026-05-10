@@ -36,9 +36,7 @@ public class Bird {
         velocity -= gravity;
         y += velocity;
 
-        // Не даем птице улететь в космос или упасть под землю
-        if (y < 0) y = 0;
-        if (y > 720 - height) y = 720 - height;
+        // Теперь птица может вылетать за границы (смерть обрабатывается в ScreenGame)
     }
 
     public void jump() {

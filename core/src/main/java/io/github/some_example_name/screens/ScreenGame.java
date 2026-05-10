@@ -21,7 +21,7 @@ public class ScreenGame implements Screen {
     PointCounter pointCounter;
     int gamePoints = 0;
 
-    int pointCounterMarginRight = 100;
+    int pointCounterMarginRight = 450; // Увеличим отступ, чтобы влезла надпись "Score: "
     int pointCounterMarginTop = 50;
 
     float difficultyTimer = 0;
@@ -29,10 +29,10 @@ public class ScreenGame implements Screen {
 
     public ScreenGame(MyGdxGame myGdxGame) {
         this.myGdxGame = myGdxGame;
-        initTubes();
         background = new MovingBackground("pictures_for_game/background/game_bg.png");
         bird = new Bird(100, SCR_HEIGHT / 2, 0.8f, 15, 80);
         pointCounter = new PointCounter(SCR_WIDTH - pointCounterMarginRight, SCR_HEIGHT - pointCounterMarginTop);
+        initTubes();
     }
 
     void initTubes() {
@@ -43,8 +43,12 @@ public class ScreenGame implements Screen {
         }
         tubes = new Tube[tubeCount];
         for (int i = 0; i < tubeCount; i++) {
-            tubes[i] = new Tube(tubeCount, i);
-            tubes[i].speed = currentSpeed;
+            try {
+                tubes[i] = new Tube(tubeCount, i);
+                tubes[i].speed = currentSpeed;
+            } catch (Exception e) {
+                Gdx.app.error("ScreenGame", "Error initializing tube " + i, e);
+            }
         }
     }
 
@@ -71,22 +75,29 @@ public class ScreenGame implements Screen {
         bird.update();
         background.update();
 
+        // Проверка на вылет за границы экрана (смерть)
+        if (bird.y < -bird.height || bird.y > SCR_HEIGHT) {
+            gameOver();
+            return;
+        }
+
         // Постепенно усложняем жизнь игроку: каждые 5 секунд трубы ускоряются
         difficultyTimer += delta;
         if (difficultyTimer > 5f) {
             difficultyTimer = 0;
             currentSpeed += 0.5f;
             if (currentSpeed > 15) currentSpeed = 15;
-            for (Tube tube : tubes) tube.speed = currentSpeed;
+            for (Tube tube : tubes) {
+                if (tube != null) tube.speed = currentSpeed;
+            }
         }
 
         for (Tube tube : tubes) {
+            if (tube == null) continue;
             tube.update();
             // Проверка на столкновение
             if (tube.isHit(bird)) {
-                myGdxGame.saveHighScore(gamePoints);
-                myGdxGame.screenRestart.setGamePoints(gamePoints);
-                myGdxGame.setScreen(myGdxGame.screenRestart);
+                gameOver();
                 return;
             }
             // Начисление очков за пролет трубы
@@ -100,10 +111,18 @@ public class ScreenGame implements Screen {
         myGdxGame.batch.setProjectionMatrix(myGdxGame.camera.combined);
         myGdxGame.batch.begin();
         background.draw(myGdxGame.batch);
-        for (Tube tube : tubes) tube.draw(myGdxGame.batch);
+        for (Tube tube : tubes) {
+            if (tube != null) tube.draw(myGdxGame.batch);
+        }
         bird.draw(myGdxGame.batch);
-        pointCounter.draw(myGdxGame.batch, "", gamePoints);
+        pointCounter.draw(myGdxGame.batch, "Score: ", gamePoints);
         myGdxGame.batch.end();
+    }
+
+    private void gameOver() {
+        myGdxGame.saveHighScore(gamePoints);
+        myGdxGame.screenRestart.setGamePoints(gamePoints);
+        myGdxGame.setScreen(myGdxGame.screenRestart);
     }
 
     @Override public void show() {}
@@ -112,8 +131,12 @@ public class ScreenGame implements Screen {
     @Override public void resume() {}
     @Override public void hide() {}
     @Override public void dispose() {
-        bird.dispose();
-        background.dispose();
-        for (Tube tube : tubes) tube.dispose();
+        if (bird != null) bird.dispose();
+        if (background != null) background.dispose();
+        if (tubes != null) {
+            for (Tube tube : tubes) {
+                if (tube != null) tube.dispose();
+            }
+        }
     }
 }

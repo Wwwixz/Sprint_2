@@ -11,62 +11,71 @@ import static io.github.some_example_name.MyGdxGame.SCR_WIDTH;
 public class Tube {
     public float x;
     public float gapY;
-    public float gapHeight = 250; // Высота пролета между трубами
-    public float width = 120;
+    public float gapHeight = 250; // Возвращаем исходный пролет
+    public float width = 120; // Возвращаем исходную ширину
     public float speed = 5;
     public float distanceBetweenTubes;
-    public boolean isActive = true; // Для начисления очков
+    public boolean isActive = true;
 
     private Texture textureUpperTube;
     private Texture textureDownTube;
     private Random random;
-    private int padding = 50; // Отступ от краев экрана для пролета
+    private int padding = 50; // Возвращаем исходный отступ
 
     public Tube(int tubeCount, int tubeIdx) {
         random = new Random();
-        // Рандомно выбираем высоту центра пролета
-        gapY = gapHeight / 2 + padding + random.nextInt(SCR_HEIGHT - 2 * (padding + (int)(gapHeight / 2)));
-        
-        // Расстояние между трубами, чтобы они равномерно распределялись по экрану
+        // Возвращаем исходную формулу расстояния
         distanceBetweenTubes = (SCR_WIDTH + width * 2) / (tubeCount);
         x = distanceBetweenTubes * tubeIdx + SCR_WIDTH;
+
+        generateGap();
 
         textureUpperTube = new Texture("pictures_for_game/tube/tube_flipped.png");
         textureDownTube = new Texture("pictures_for_game/tube/tube.png");
         isActive = true;
     }
 
+    private void generateGap() {
+        // Улучшенная генерация пролета: всегда в центре игровой зоны
+        int minGapY = (int) (padding + gapHeight / 2);
+        int maxGapY = (int) (SCR_HEIGHT - padding - gapHeight / 2);
+        gapY = minGapY + random.nextInt(maxGapY - minGapY + 1);
+    }
+
     public void update() {
         x -= speed;
-        // Если труба ушла за левый край экрана — переносим её вправо и меняем высоту пролета
+        // Плавный перенос трубы в конец очереди
         if (x < -width) {
-            x += distanceBetweenTubes * 3; // 3 — количество труб на экране
-            gapY = gapHeight / 2 + padding + random.nextInt(SCR_HEIGHT - 2 * (padding + (int)(gapHeight / 2)));
-            isActive = true; // Снова активна для начисления очков
+            x += distanceBetweenTubes * 3; 
+            generateGap();
+            isActive = true;
         }
     }
 
     public void draw(Batch batch) {
-        // Рисуем верхнюю трубу
+        // Рисуем верхнюю трубу (перевернутую)
         batch.draw(textureUpperTube, x, gapY - gapHeight / 2 - textureUpperTube.getHeight(), width, textureUpperTube.getHeight());
         // Рисуем нижнюю трубу
         batch.draw(textureDownTube, x, gapY + gapHeight / 2, width, textureDownTube.getHeight());
     }
 
     public boolean isHit(Bird bird) {
-        // Делаем хитбокс чуть меньше самой птицы, чтобы не было обидных касаний краем спрайта
-        float birdPadding = bird.width * 0.2f;
-        float birdX = bird.x + birdPadding;
-        float birdY = bird.y + birdPadding;
-        float birdW = bird.width - birdPadding * 2;
-        float birdH = bird.height - birdPadding * 2;
+        // Улучшенный хитбокс: более точное определение столкновения
+        float birdPaddingW = bird.width * 0.15f;
+        float birdPaddingH = bird.height * 0.15f;
+        float bX = bird.x + birdPaddingW;
+        float bY = bird.y + birdPaddingH;
+        float bW = bird.width - birdPaddingW * 2;
+        float bH = bird.height - birdPaddingH * 2;
 
-        // Проверка столкновения с верхней трубой
-        if (birdY <= gapY - gapHeight / 2 && birdX + birdW >= x && birdX <= x + width)
+        // Столкновение с верхней трубой
+        if (bX < x + width && bX + bW > x && bY < gapY - gapHeight / 2) {
             return true;
-        // Проверка столкновения с нижней трубой
-        if (birdY + birdH >= gapY + gapHeight / 2 && birdX + birdW >= x && birdX <= x + width)
+        }
+        // Столкновение с нижней трубой
+        if (bX < x + width && bX + bW > x && bY + bH > gapY + gapHeight / 2) {
             return true;
+        }
         
         return false;
     }
