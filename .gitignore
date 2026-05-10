@@ -12,12 +12,4 @@
 /captures/
 .externalNativeBuild
 .cxx
-/assets/pictures_for_game/background/*
-/assets/pictures_for_game/bird/*
-/assets/pictures_for_game/button/*
-/assets/pictures_for_game/tube/*
-# Keep the directories if needed
-!/assets/pictures_for_game/background/.gitkeep
-!/assets/pictures_for_game/bird/.gitkeep
-!/assets/pictures_for_game/button/.gitkeep
-!/assets/pictures_for_game/tube/.gitkeep
+# /assets/
